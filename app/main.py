@@ -228,17 +228,11 @@ async def cmd_total(message: Message) -> None:
 @router.message(Command("help"))
 async def cmd_help(message: Message) -> None:
     text = (
-        "📸 <b>Фото-счётчик</b>\n\n"
-        "Отправьте пиво в группу — бот заменит её сообщением вида «№127 · Иван Петров» и учтёт в статистике.\n\n"
+        "🍻 <b>Пивной score</b>\n\n"
+        "Отправьте пиво в группу — бот заменит её сообщением вида «№127 · Ванька Ерохин» и учтёт в статистике.\n\n"
         "/me — мой результат\n"
         "/top — рейтинг\n"
         "/total — общее количество\n\n"
-        "Администратору:\n"
-        "/deletephoto N — удалить пиво №N и перенумеровать следующие\n"
-        "/milestones — список праздничных сообщений\n"
-        "/addmilestone N текст — добавить\n"
-        "/editmilestone N текст — изменить\n"
-        "/delmilestone N — удалить"
     )
     await message.answer(text, parse_mode=ParseMode.HTML)
 
