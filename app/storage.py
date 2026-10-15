@@ -118,21 +118,6 @@ class JsonStorage:
                 pass
         return target
 
-    def _backup_sync(self, reason: str = "manual") -> Path | None:
-        if not self.path.exists():
-            return None
-        safe_reason = "".join(ch if ch.isalnum() or ch in "-_" else "_" for ch in reason)[:40]
-        stamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S_%f")
-        target = self.backup_dir / f"state_{stamp}_{safe_reason}.json"
-        shutil.copy2(self.path, target)
-        backups = sorted(self.backup_dir.glob("state_*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
-        for old in backups[self.backup_keep:]:
-            try:
-                old.unlink()
-            except OSError:
-                pass
-        return target
-
     async def snapshot(self) -> dict[str, Any]:
         async with self.lock:
             return deepcopy(self._read_sync())
@@ -177,10 +162,7 @@ def ensure_chat(state: dict[str, Any], chat_id: int, title: str | None = None) -
             "personal_milestones": {},
             "triggered_personal_milestones": {},
             "texts": deepcopy(DEFAULT_TEXTS),
-<<<<<<< HEAD
             "next_number": 1,
-=======
->>>>>>> 1a88d8a0e3f40dd204406202474f3e895fcb8f76
         },
     )
     if title:
@@ -191,12 +173,9 @@ def ensure_chat(state: dict[str, Any], chat_id: int, title: str | None = None) -
     chat.setdefault("triggered_milestones", [])
     chat.setdefault("personal_milestones", {})
     chat.setdefault("triggered_personal_milestones", {})
-<<<<<<< HEAD
     if "next_number" not in chat:
         max_existing = max((int(p.get("number", 0)) for p in chat.get("photos", [])), default=0)
         chat["next_number"] = max_existing + 1
-=======
->>>>>>> 1a88d8a0e3f40dd204406202474f3e895fcb8f76
     texts = chat.setdefault("texts", {})
     for key_, value in DEFAULT_TEXTS.items():
         texts.setdefault(key_, value)
