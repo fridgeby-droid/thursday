@@ -4,9 +4,12 @@ import asyncio
 import html
 import logging
 import os
+<<<<<<< HEAD
 import io
 import json
 import re
+=======
+>>>>>>> 1a88d8a0e3f40dd204406202474f3e895fcb8f76
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -66,8 +69,11 @@ class AdminFlow(StatesGroup):
     waiting_personal_threshold = State()
     waiting_personal_content = State()
     waiting_text_value = State()
+<<<<<<< HEAD
     waiting_next_number = State()
     waiting_restore_export = State()
+=======
+>>>>>>> 1a88d8a0e3f40dd204406202474f3e895fcb8f76
 
 
 def full_name_from_user(user: Any) -> str:
@@ -86,6 +92,7 @@ def render_photo_caption(chat: dict[str, Any], number: int, name: str) -> str:
 
 def active_count(chat: dict[str, Any] | None) -> int:
     return len(chat.get("photos", [])) if chat else 0
+<<<<<<< HEAD
 
 
 def next_photo_number(chat: dict[str, Any]) -> int:
@@ -270,6 +277,13 @@ def merge_recovered_identity(chat: dict[str, Any], user_id: int, name: str, user
 
 
 def resolve_chat_from_state(state: dict[str, Any], message: Message) -> tuple[int | None, dict[str, Any] | None]:
+=======
+
+
+def resolve_chat_from_state(state: dict[str, Any], message: Message) -> tuple[int | None, dict[str, Any] | None]:
+    if message.chat.type in {ChatType.GROUP, ChatType.SUPERGROUP}:
+        return message.chat.id, state.get("chats", {}).get(str(message.chat.id))
+>>>>>>> 1a88d8a0e3f40dd204406202474f3e895fcb8f76
     chats = state.get("chats", {})
     if message.chat.type in {ChatType.GROUP, ChatType.SUPERGROUP}:
         return message.chat.id, chats.get(str(message.chat.id))
@@ -288,6 +302,7 @@ def resolve_chat_from_state(state: dict[str, Any], message: Message) -> tuple[in
 
 async def resolve_private_admin_chat(bot: Bot, user_id: int) -> tuple[int | None, dict[str, Any] | None]:
     state = await storage.snapshot()
+<<<<<<< HEAD
     chats = state.get("chats", {})
     default_chat_id = state.get("default_chat_id")
 
@@ -302,6 +317,10 @@ async def resolve_private_admin_chat(bot: Bot, user_id: int) -> tuple[int | None
 
     valid: list[tuple[int, dict[str, Any]]] = []
     for cid, chat in chats.items():
+=======
+    valid: list[tuple[int, dict[str, Any]]] = []
+    for cid, chat in state.get("chats", {}).items():
+>>>>>>> 1a88d8a0e3f40dd204406202474f3e895fcb8f76
         try:
             member = await bot.get_chat_member(int(cid), user_id)
             if member.status in {ChatMemberStatus.CREATOR, ChatMemberStatus.ADMINISTRATOR} or user_id in ADMIN_IDS:
@@ -430,7 +449,10 @@ def admin_menu() -> InlineKeyboardMarkup:
         [InlineKeyboardButton(text="🎉 Milestones", callback_data="adm:milestones"), InlineKeyboardButton(text="🏅 Личные достижения", callback_data="adm:personal")],
         [InlineKeyboardButton(text="✏️ Тексты бота", callback_data="adm:texts")],
         [InlineKeyboardButton(text="🗑 Удалить фото", callback_data="adm:delete")],
+<<<<<<< HEAD
         [InlineKeyboardButton(text="🔢 Нумерация", callback_data="adm:numbering"), InlineKeyboardButton(text="♻️ Восстановление", callback_data="adm:restore")],
+=======
+>>>>>>> 1a88d8a0e3f40dd204406202474f3e895fcb8f76
         [InlineKeyboardButton(text="💾 Резервные копии", callback_data="adm:backups")],
     ])
 
@@ -462,7 +484,11 @@ async def handle_photo(message: Message, bot: Bot) -> None:
     async with operation_lock:
         state_before = await storage.snapshot()
         chat_before = state_before.get("chats", {}).get(str(message.chat.id)) or ensure_chat(state_before, message.chat.id, message.chat.title or "")
+<<<<<<< HEAD
         number = next_photo_number(chat_before)
+=======
+        number = len(chat_before.get("photos", [])) + 1
+>>>>>>> 1a88d8a0e3f40dd204406202474f3e895fcb8f76
         name = full_name_from_user(message.from_user)
         caption = render_photo_caption(chat_before, number, name)
         try:
@@ -482,10 +508,14 @@ async def handle_photo(message: Message, bot: Bot) -> None:
 
         def commit(state: dict[str, Any]):
             chat = ensure_chat(state, message.chat.id, message.chat.title or "")
+<<<<<<< HEAD
             if state.get("default_chat_id") is None:
                 state["default_chat_id"] = message.chat.id
             merge_recovered_identity(chat, user_id, name, username)
             final_number = next_photo_number(chat)
+=======
+            final_number = len(chat["photos"]) + 1
+>>>>>>> 1a88d8a0e3f40dd204406202474f3e895fcb8f76
             chat["photos"].append({
                 "number": final_number,
                 "message_id": sent.message_id,
@@ -495,7 +525,10 @@ async def handle_photo(message: Message, bot: Bot) -> None:
                 "username": username,
                 "created_at": now,
             })
+<<<<<<< HEAD
             chat["next_number"] = final_number + 1
+=======
+>>>>>>> 1a88d8a0e3f40dd204406202474f3e895fcb8f76
             user = chat["users"].setdefault(str(user_id), {"name": name, "username": username, "count": 0})
             user["name"] = name
             user["username"] = username
@@ -524,6 +557,7 @@ async def handle_photo(message: Message, bot: Bot) -> None:
             await send_media_message(bot, message.chat.id, global_payload)
         if personal_payload:
             await send_media_message(bot, message.chat.id, personal_payload, name=name, count=personal_count)
+<<<<<<< HEAD
 
 
 @router.message(Command("setgroup"))
@@ -545,6 +579,8 @@ async def cmd_setgroup(message: Message, bot: Bot) -> None:
         "Теперь команды в личке и админ-панель будут использовать её.",
         parse_mode=ParseMode.HTML,
     )
+=======
+>>>>>>> 1a88d8a0e3f40dd204406202474f3e895fcb8f76
 
 
 @router.message(Command("me"))
@@ -552,6 +588,7 @@ async def cmd_me(message: Message) -> None:
     if not message.from_user:
         return
     state = await storage.snapshot()
+<<<<<<< HEAD
     chat_id, chat = resolve_chat_from_state(state, message)
     if not chat or chat_id is None:
         await message.answer("Не могу определить рабочую группу. Попросите администратора отправить /setgroup в нужной группе.")
@@ -565,6 +602,12 @@ async def cmd_me(message: Message) -> None:
         await storage.mutate(bind, backup=True, reason="bind_recovered_user")
         state = await storage.snapshot()
         chat = state.get("chats", {}).get(str(chat_id), chat)
+=======
+    _, chat = resolve_chat_from_state(state, message)
+    if not chat:
+        await message.answer("Не могу определить рабочую группу.")
+        return
+>>>>>>> 1a88d8a0e3f40dd204406202474f3e895fcb8f76
     rank, count, gap = user_rank_info(chat, message.from_user.id)
     text = f"📷 Ваш результат: <b>{count}</b> фото\n🏆 Место в рейтинге: <b>{rank}</b>"
     if gap is not None:
@@ -636,7 +679,11 @@ async def cmd_start(message: Message, bot: Bot) -> None:
 @router.message(Command("help"))
 async def cmd_help(message: Message) -> None:
     await message.answer(
+<<<<<<< HEAD
         "📸 /me — мой результат\n/top — общий рейтинг\n/today — сегодня\n/week — неделя\n/month — месяц\n/total — всего\n/info — инструкция\n/admin — админ-панель\n/setgroup — выбрать рабочую группу (админ)"
+=======
+        "📸 /me — мой результат\n/top — общий рейтинг\n/today — сегодня\n/week — неделя\n/month — месяц\n/total — всего\n/info — инструкция\n/admin — админ-панель"
+>>>>>>> 1a88d8a0e3f40dd204406202474f3e895fcb8f76
     )
 
 
@@ -647,7 +694,11 @@ async def cmd_admin(message: Message, bot: Bot) -> None:
         return
     chat_id, chat = await resolve_private_admin_chat(bot, message.from_user.id)
     if not chat_id or not chat:
+<<<<<<< HEAD
         await message.answer("Рабочая группа не выбрана. Отправьте /setgroup прямо в нужной группе, затем вернитесь сюда и снова откройте /admin.")
+=======
+        await message.answer("Не удалось определить единственную рабочую группу, где вы администратор.")
+>>>>>>> 1a88d8a0e3f40dd204406202474f3e895fcb8f76
         return
     await message.answer(f"⚙️ Админ-панель\nГруппа: {html.escape(chat.get('title',''))}", reply_markup=admin_menu(), parse_mode=ParseMode.HTML)
 
@@ -815,6 +866,7 @@ async def delete_photo_number(bot: Bot, chat_id: int, target: int) -> tuple[bool
             uid = str(removed["user_id"])
             if uid in target_chat["users"]: target_chat["users"][uid]["count"] = max(0, int(target_chat["users"][uid].get("count", 0)) - 1)
             affected = []
+<<<<<<< HEAD
             for photo in current:
                 old = int(photo["number"])
                 if old > target:
@@ -826,6 +878,11 @@ async def delete_photo_number(bot: Bot, chat_id: int, target: int) -> tuple[bool
                 target_chat["next_number"] = configured_next - 1
             else:
                 target_chat["next_number"] = next_photo_number(target_chat)
+=======
+            for idx, photo in enumerate(current, start=1):
+                old = int(photo["number"]); photo["number"] = idx
+                if old != idx: affected.append(dict(photo))
+>>>>>>> 1a88d8a0e3f40dd204406202474f3e895fcb8f76
             return affected, str(removed.get("name", "Пользователь")), dict(target_chat)
         affected, removed_name, chat_after = await storage.mutate(mutate, backup=True, reason=f"delete_photo_{target}")
         for photo in affected:
@@ -851,6 +908,7 @@ async def cmd_delete_photo(message: Message, bot: Bot, command: CommandObject) -
     arg = (command.args or "").strip()
     if not arg.isdigit(): return await message.answer("Использование: /deletephoto 146")
     ok, text = await delete_photo_number(bot, chat_id, int(arg)); await message.answer(("✅ " if ok else "⚠️ ") + text)
+<<<<<<< HEAD
 
 
 @router.callback_query(F.data == "adm:numbering")
@@ -1001,6 +1059,10 @@ async def state_restore_export_wrong(message: Message) -> None:
     await message.answer("Пришлите файл result.json из экспорта Telegram Desktop или вернитесь в меню.")
 
 
+=======
+
+
+>>>>>>> 1a88d8a0e3f40dd204406202474f3e895fcb8f76
 @router.callback_query(F.data == "adm:backups")
 async def cb_backups(call: CallbackQuery) -> None:
     kb = InlineKeyboardMarkup(inline_keyboard=[
